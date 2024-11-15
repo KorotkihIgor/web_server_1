@@ -1,6 +1,7 @@
 
 import java.io.*;
 import java.net.ServerSocket;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,8 +52,12 @@ public class Server implements Runnable {
                     }
                     System.out.println(method);
                     final var path = requestLine[1];
-                    System.out.println(path);
-                    Request request = new Request(method, path, in);
+                    Request request = new Request(method, path);
+                    System.out.println("path = " + request.getPath());
+                    var queryParams = request.getQueryParams();
+                    System.out.println("queryParams = " + queryParams);
+                    var getQueryParam = request.getQueryParam("title");
+                    System.out.println("getQueryParam = " + getQueryParam);
                     if (handlers.containsKey(request.getMethod())) {
                         if (handlers.get(request.getMethod()).containsKey(request.getPath())) {
                             handlers.get(request.getMethod()).get(request.getPath()).handle(request, out);
@@ -86,6 +91,8 @@ public class Server implements Runnable {
                             System.out.println(body);
                         }
                     }
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
                 }
             }
         } catch (IOException e) {
